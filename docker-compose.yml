@@ -1,0 +1,17 @@
+services:
+  oracle-xe:
+    image: container-registry.oracle.com/database/express:latest
+    container_name: oracle-xe
+    restart: always
+    ports:
+      - "1521:1521"   # Puerto para SQL*Net
+      - "5500:5500"   # Puerto de Enterprise Manager
+    environment:
+      ORACLE_PWD: A123456
+      ORACLE_CHARACTERSET: AL32UTF8
+    volumes:
+      - ./oracle-data-xe:/opt/oracle/oradata
+
+volumes:
+  oracle-data-xe:
+    driver: local
