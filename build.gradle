@@ -27,6 +27,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    implementation 'com.oracle.database.jdbc:ojdbc11:21.5.0.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 
 
