@@ -28,38 +28,37 @@ public class PreguntaService {
 
     public List<Map<String, Object>> preguntasPrivadasPorDocente(Long usuarioId) {
         String sql = """
-            SELECT bp.id, bp.enunciado, tp.nombre AS tipo, bp.dificultad, bp.tasa_respuesta_correcta,
-                   t.nombre AS tema, c.nombre AS contenido, u.nombre AS unidad, pe.nombre AS plan_estudio,
-                   bp.fecha_creacion
-            FROM banco_preguntas bp
-            JOIN tipo_pregunta tp ON bp.tipo_pregunta_id = tp.id
-            JOIN tema t ON bp.tema_id = t.id
-            JOIN contenido c ON t.contenido_id = c.id
-            JOIN unidad u ON c.unidad_id = u.id
-            JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
-            WHERE bp.usuario_id = ? AND bp.es_publica = 'N'
-            ORDER BY bp.fecha_creacion DESC
-        """;
+        SELECT bp.id, bp.enunciado, tp.nombre AS tipo, bp.dificultad, bp.tasa_respuesta_correcta,
+               t.nombre AS tema, c.nombre AS contenido, u.nombre AS unidad, pe.nombre AS plan_estudio
+         FROM banco_preguntas bp
+         LEFT JOIN tipo_pregunta tp ON bp.tipo_pregunta_id = tp.id
+         LEFT JOIN tema t ON bp.tema_id = t.id
+         LEFT JOIN contenido c ON t.contenido_id = c.id
+         LEFT JOIN unidad u ON c.unidad_id = u.id
+         LEFT JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
+         WHERE bp.usuario_id = ? AND bp.es_publica = 'N'
+         ORDER BY bp.id DESC
+    """;
+
         return jdbcTemplate.queryForList(sql, usuarioId);
     }
 
     public List<Map<String, Object>> preguntasPublicas() {
         String sql = """
-            SELECT bp.id, bp.enunciado, tp.nombre AS tipo, bp.dificultad, bp.tasa_respuesta_correcta,
-                   t.nombre AS tema, c.nombre AS contenido, u.nombre AS unidad, pe.nombre AS plan_estudio,
-                   bp.fecha_creacion
-            FROM banco_preguntas bp
-            JOIN tipo_pregunta tp ON bp.tipo_pregunta_id = tp.id
-            JOIN tema t ON bp.tema_id = t.id
-            JOIN contenido c ON t.contenido_id = c.id
-            JOIN unidad u ON c.unidad_id = u.id
-            JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
-            WHERE bp.es_publica = 'S'
-            ORDER BY bp.fecha_creacion DESC
-        """;
+         SELECT bp.id, bp.enunciado, tp.nombre AS tipo, bp.dificultad, bp.tasa_respuesta_correcta,
+                t.nombre AS tema, c.nombre AS contenido, u.nombre AS unidad, pe.nombre AS plan_estudio
+         FROM banco_preguntas bp
+         LEFT JOIN tipo_pregunta tp ON bp.tipo_pregunta_id = tp.id
+         LEFT JOIN tema t ON bp.tema_id = t.id
+         LEFT JOIN contenido c ON t.contenido_id = c.id
+         LEFT JOIN unidad u ON c.unidad_id = u.id
+         LEFT JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
+         WHERE bp.es_publica = 'S'
+         ORDER BY bp.id DESC
+    """;
+
         return jdbcTemplate.queryForList(sql);
     }
-
     public void crearPreguntaSeleccionUnica(PreguntaSeleccionUnicaDTO dto) {
         // Construir las llamadas a prc_agregar_opcion_respuesta
         String opcionesPLSQL = dto.opciones().stream()

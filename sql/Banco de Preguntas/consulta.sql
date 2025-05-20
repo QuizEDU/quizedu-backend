@@ -112,3 +112,16 @@ FROM dual;
 
 SELECT fn_validar_emparejamiento_usuario(27, '31-32;33-34;35-36;37-38;39-42;41-40') AS resultado
 FROM dual;
+
+
+
+
+SELECT bp.id, bp.enunciado, tp.nombre AS tipo, bp.dificultad, bp.tasa_respuesta_correcta,
+       t.nombre AS tema, c.nombre AS contenido, u.nombre AS unidad, pe.nombre AS plan_estudio
+FROM banco_preguntas bp
+LEFT JOIN tipo_pregunta tp ON bp.tipo_pregunta_id = tp.id
+LEFT JOIN tema t ON bp.tema_id = t.id
+LEFT JOIN contenido c ON t.contenido_id = c.id
+LEFT JOIN unidad u ON c.unidad_id = u.id
+LEFT JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
+WHERE bp.es_publica = 'N';
