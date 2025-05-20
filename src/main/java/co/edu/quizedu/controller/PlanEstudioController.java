@@ -1,7 +1,10 @@
 package co.edu.quizedu.controller;
 
 
+import co.edu.quizedu.dtos.CrearContenidoRequest;
 import co.edu.quizedu.dtos.CrearPlanEstudioRequest;
+import co.edu.quizedu.dtos.CrearTemaRequest;
+import co.edu.quizedu.dtos.CrearUnidadRequest;
 import co.edu.quizedu.service.PlanEstudioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +23,22 @@ public class PlanEstudioController {
     public void crear(@RequestBody CrearPlanEstudioRequest request) {
         service.crearPlanEstudio(request);
     }
+
+    @PostMapping("/unidad")
+    public void crearUnidad(@RequestBody CrearUnidadRequest request) {
+        service.crearUnidad(request);
+    }
+
+    @PostMapping("/contenido")
+    public void crearContenido(@RequestBody CrearContenidoRequest request) {
+        service.crearContenido(request);
+    }
+
+    @PostMapping("/tema")
+    public void crearTema(@RequestBody CrearTemaRequest request) {
+        service.crearTema(request);
+    }
+
     @GetMapping
     public List<Map<String, Object>> listarPlanes() {
         return service.listarPlanes();

@@ -1,6 +1,9 @@
 package co.edu.quizedu.service;
 
+import co.edu.quizedu.dtos.CrearContenidoRequest;
 import co.edu.quizedu.dtos.CrearPlanEstudioRequest;
+import co.edu.quizedu.dtos.CrearTemaRequest;
+import co.edu.quizedu.dtos.CrearUnidadRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -37,6 +40,36 @@ public class PlanEstudioService {
 
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error inesperado al crear el plan de estudio.");
         }
+    }
+
+    public void crearUnidad(CrearUnidadRequest request) {
+        jdbcTemplate.execute((Connection con) -> {
+            CallableStatement cs = con.prepareCall("{ call prc_crear_unidad(?, ?) }");
+            cs.setString(1, request.nombre());
+            cs.setLong(2, request.planEstudioId());
+            cs.execute();
+            return null;
+        });
+    }
+
+    public void crearContenido(CrearContenidoRequest request) {
+        jdbcTemplate.execute((Connection con) -> {
+            CallableStatement cs = con.prepareCall("{ call prc_crear_contenido(?, ?) }");
+            cs.setString(1, request.nombre());
+            cs.setLong(2, request.unidadId());
+            cs.execute();
+            return null;
+        });
+    }
+
+    public void crearTema(CrearTemaRequest request) {
+        jdbcTemplate.execute((Connection con) -> {
+            CallableStatement cs = con.prepareCall("{ call prc_crear_tema(?, ?) }");
+            cs.setString(1, request.nombre());
+            cs.setLong(2, request.contenidoId());
+            cs.execute();
+            return null;
+        });
     }
 
     public List<Map<String, Object>> listarPlanes() {
@@ -159,6 +192,5 @@ public class PlanEstudioService {
             return plan;
         }).toList();
     }
-
 }
 
