@@ -120,3 +120,16 @@ CREATE TABLE respuesta_correcta (
     CONSTRAINT fk_respuesta_correcta_pregunta FOREIGN KEY (banco_pregunta_id) REFERENCES banco_preguntas(id) ON DELETE CASCADE,
     CONSTRAINT fk_respuesta_correcta_sub FOREIGN KEY (sub_pregunta_id) REFERENCES sub_pregunta(id) ON DELETE CASCADE
 );
+
+
+
+ALTER TABLE banco_preguntas
+ADD pregunta_padre_id NUMBER
+    REFERENCES banco_preguntas(id)
+    ON DELETE CASCADE;
+
+ALTER TABLE banco_preguntas ADD porcentaje NUMBER;
+
+ALTER TABLE banco_preguntas ADD tiempo_maximo NUMBER;
+
+ALTER TABLE opcion_respuesta DROP CONSTRAINT SYS_C008254;
