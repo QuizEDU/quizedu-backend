@@ -58,4 +58,4 @@ JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
 ORDER BY t.id;
 
 
-SELECT * FROM curso_estudiante;
+SELECT * FROM curso;

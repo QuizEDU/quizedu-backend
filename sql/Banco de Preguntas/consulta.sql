@@ -25,7 +25,6 @@ FROM banco_preguntas bp
 JOIN tipo_pregunta tr ON bp.tipo_pregunta_id = tr.id
 JOIN tema t ON bp.tema_id = t.id
 LEFT JOIN opcion_respuesta orp ON orp.pregunta_id = bp.id
-WHERE bp.id = 3  -- ← Cambia este ID por la pregunta que desees ver
 ORDER BY bp.id, orp.id;
 
 
