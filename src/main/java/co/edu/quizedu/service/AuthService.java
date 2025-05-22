@@ -25,44 +25,53 @@ public class AuthService {
 
     public AuthResponse registrarYLoguear(RegistroRequest request) {
         try (Connection con = dataSource.getConnection()) {
-            CallableStatement cs = con.prepareCall("{ call SYSTEM.PRC_REGISTRAR_Y_LOGUEAR_USUARIO(?, ?, ?, ?) }");
+            CallableStatement cs = con.prepareCall("{ call PRC_REGISTRAR_Y_LOGUEAR_USUARIO(?, ?, ?, ?, ?) }");
             cs.setString(1, request.nombre());
             cs.setString(2, request.correo());
             cs.setString(3, request.contrasenia());
-            cs.registerOutParameter(4, Types.VARCHAR);
+            cs.registerOutParameter(4, Types.VARCHAR); // token
+            cs.registerOutParameter(5, Types.VARCHAR); // rol
 
             cs.execute();
 
             String token = cs.getString(4);
+            String rol = cs.getString(5);
+
             if ("CORREO_EXISTENTE".equals(token)) {
-                return new AuthResponse("CORREO_EXISTENTE", null);
+                return new AuthResponse("CORREO_EXISTENTE", null, null);
             }
-            return new AuthResponse("OK", token);
+
+            return new AuthResponse("OK", token, rol);
 
         } catch (SQLException e) {
             System.err.println("SQLState: " + e.getSQLState());
             System.err.println("Error Code: " + e.getErrorCode());
             System.err.println("Message: " + e.getMessage());
-            return new AuthResponse("ERROR", null);
+            return new AuthResponse("ERROR", null, null);
         }
     }
 
+
     public AuthResponse iniciarSesion(LoginRequest request) {
         try (Connection con = dataSource.getConnection()) {
-            CallableStatement cs = con.prepareCall("{ call prc_iniciar_sesion_usuario(?, ?, ?) }");
+            CallableStatement cs = con.prepareCall("{ call prc_iniciar_sesion_usuario(?, ?, ?, ?) }");
             cs.setString(1, request.correo());
             cs.setString(2, request.contrasenia());
-            cs.registerOutParameter(3, Types.VARCHAR);
+            cs.registerOutParameter(3, Types.VARCHAR); // token
+            cs.registerOutParameter(4, Types.VARCHAR); // rol
             cs.execute();
 
             String token = cs.getString(3);
+            String rol = cs.getString(4);
+
             if ("LOGIN_INVALIDO".equals(token)) {
-                return new AuthResponse("LOGIN_INVALIDO", null);
+                return new AuthResponse("LOGIN_INVALIDO", null, null);
             }
-            return new AuthResponse("OK", token);
+
+            return new AuthResponse("OK", token, rol);
 
         } catch (SQLException e) {
-            return new AuthResponse("ERROR", null);
+            return new AuthResponse("ERROR", null, null);
         }
     }
 

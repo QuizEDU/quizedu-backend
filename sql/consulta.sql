@@ -56,3 +56,6 @@ JOIN contenido c ON t.contenido_id = c.id
 JOIN unidad u ON c.unidad_id = u.id
 JOIN plan_estudio pe ON u.plan_estudio_id = pe.id
 ORDER BY t.id;
+
+
+SELECT * FROM curso_estudiante;
