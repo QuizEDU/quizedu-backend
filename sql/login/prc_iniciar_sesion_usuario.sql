@@ -11,8 +11,7 @@ BEGIN
     AND contrasenia = p_contrasenia
     AND estado = 'ACTIVO';
 
-  p_token := 'TOKEN_' || DBMS_RANDOM.STRING('U', 20);
-
+  p_token := 'TOKEN_' ||v_usuario_id;
   INSERT INTO token (id_usuario, token, fecha_expiracion)
   VALUES (v_usuario_id, p_token, CURRENT_TIMESTAMP + 1);
 EXCEPTION

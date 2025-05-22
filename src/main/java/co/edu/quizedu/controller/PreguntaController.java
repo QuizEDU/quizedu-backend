@@ -51,7 +51,7 @@ public class PreguntaController {
     public ResponseEntity<?> crearVerdaderoFalso(@RequestBody PreguntaVFDTO dto) {
         try {
             preguntaService.crearPreguntaVerdaderoFalso(dto);
-            return ResponseEntity.ok("Pregunta verdadero/falso creada exitosamente.");
+            return ResponseEntity.ok(new RespuestaDTO(true, "Pregunta verdadero/falso creada exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
@@ -62,10 +62,10 @@ public class PreguntaController {
     public ResponseEntity<?> crearSeleccionUnica(@RequestBody PreguntaSeleccionUnicaDTO dto) {
         try {
             preguntaService.crearPreguntaSeleccionUnica(dto);
-            return ResponseEntity.ok("Pregunta de selección única creada exitosamente.");
+            return ResponseEntity.ok(new RespuestaDTO(true, "Pregunta de selección única creada exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new RespuestaDTO(false, e.getMessage()));
         }
     }
 
@@ -73,10 +73,10 @@ public class PreguntaController {
     public ResponseEntity<?> crearSeleccionMultiple(@RequestBody PreguntaSeleccionMultipleDTO dto) {
         try {
             preguntaService.crearPreguntaSeleccionMultiple(dto);
-            return ResponseEntity.ok("Pregunta de selección múltiple creada exitosamente.");
+            return ResponseEntity.ok(new RespuestaDTO(true, "Pregunta de selección múltiple creada exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new RespuestaDTO(false, e.getMessage()));
         }
     }
 
@@ -84,10 +84,10 @@ public class PreguntaController {
     public ResponseEntity<?> crearCompletar(@RequestBody PreguntaCompletarDTO dto) {
         try {
             preguntaService.crearPreguntaCompletar(dto);
-            return ResponseEntity.ok("Pregunta de completar creada exitosamente.");
+            return ResponseEntity.ok(new RespuestaDTO(true, "Pregunta de completar creada exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new RespuestaDTO(false, e.getMessage()));
         }
     }
 
@@ -95,10 +95,10 @@ public class PreguntaController {
     public ResponseEntity<?> crearOrdenar(@RequestBody PreguntaOrdenarDTO dto) {
         try {
             preguntaService.crearPreguntaOrdenar(dto);
-            return ResponseEntity.ok("Pregunta de ordenar creada exitosamente.");
+            return ResponseEntity.ok(new RespuestaDTO(true, "Pregunta de ordenar creada exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new RespuestaDTO(false, e.getMessage()));
         }
     }
 
@@ -106,10 +106,10 @@ public class PreguntaController {
     public ResponseEntity<?> crearEmparejar(@RequestBody PreguntaEmparejarDTO dto) {
         try {
             preguntaService.crearPreguntaEmparejar(dto);
-            return ResponseEntity.ok("Pregunta de emparejamiento creada exitosamente.");
+            return ResponseEntity.ok(new RespuestaDTO(true, "Pregunta de emparejamiento creada exitosamente."));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(new RespuestaDTO(false, e.getMessage()));
         }
     }
 }
