@@ -280,6 +280,64 @@ public class EvaluacionService {
         });
     }
 
+    public RespuestaDTO registrarRespuesta(PresentarRespuestaDTO dto) {
+        String sql = """
+        BEGIN
+          prc_responder_pregunta(
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
+          );
+        END;
+    """;
+
+        try {
+            jdbc.execute((Connection con) -> {
+                CallableStatement cs = con.prepareCall(sql);
+                cs.setLong(1, dto.evaluacionId());
+                cs.setLong(2, dto.estudianteId());
+                cs.setLong(3, dto.cursoId());
+                cs.setLong(4, dto.preguntaId());
+                cs.setString(5, dto.tipo());
+                cs.setString(6, dto.respuestaTexto());
+
+                if (dto.respuestaOpcionId() != null) {
+                    cs.setLong(7, dto.respuestaOpcionId());
+                } else {
+                    cs.setNull(7, Types.NUMERIC);
+                }
+
+                cs.setString(8, dto.respuestaCompuesta());
+                cs.setString(9, dto.emparejamientos());
+
+                cs.execute();
+                return null;
+            });
+
+            return new RespuestaDTO(true, "Respuesta registrada correctamente");
+        } catch (Exception e) {
+            throw new RuntimeException("Error al registrar la respuesta: " + e.getMessage(), e);
+        }
+    }
+
+    public ResultadoFinalDTO finalizarEvaluacion(FinalizarEvaluacionDTO dto) {
+        String call = "{ call prc_calificar_evaluacion_estudiante(?, ?, ?) }";
+
+        try {
+            Double nota = jdbc.execute((Connection con) -> {
+                CallableStatement cs = con.prepareCall(call);
+                cs.setLong(1, dto.evaluacionId());
+                cs.setLong(2, dto.estudianteId());
+                cs.registerOutParameter(3, Types.NUMERIC);
+
+                cs.execute();
+
+                return cs.getDouble(3);
+            });
+
+            return new ResultadoFinalDTO(true, "Examen finalizado", nota);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al finalizar la evaluación: " + e.getMessage(), e);
+        }
+    }
 
     private List<PresentarOpcionDTO> obtenerOpciones(Long preguntaId) {
         String sql = """

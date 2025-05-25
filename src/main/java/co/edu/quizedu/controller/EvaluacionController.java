@@ -68,4 +68,14 @@ public class EvaluacionController {
         return ResponseEntity.ok(evaluacionService.obtenerPreguntasParaPresentar(evaluacionId));
     }
 
+    @PostMapping("/respuesta")
+    public ResponseEntity<RespuestaDTO> registrarRespuesta(@RequestBody PresentarRespuestaDTO dto) {
+        return ResponseEntity.ok(evaluacionService.registrarRespuesta(dto));
+    }
+
+    @PostMapping("/evaluaciones/finalizar")
+    public ResponseEntity<ResultadoFinalDTO> finalizarEvaluacion(
+            @RequestBody FinalizarEvaluacionDTO dto) {
+        return ResponseEntity.ok(evaluacionService.finalizarEvaluacion(dto));
+    }
 }

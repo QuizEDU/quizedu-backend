@@ -21,3 +21,10 @@ LEFT JOIN (
   GROUP BY evaluacion_id, estudiante_id
 ) ee ON ee.evaluacion_id = e.id AND ee.estudiante_id = ce.estudiante_id
 WHERE CURRENT_TIMESTAMP BETWEEN ec.fecha_apertura AND ec.fecha_cierre;
+
+
+SELECT p.id, DBMS_LOB.SUBSTR(p.enunciado, 4000) AS enunciado, ep.porcentaje, ep.orden
+FROM evaluacion_pregunta ep
+JOIN banco_preguntas p ON p.id = ep.pregunta_id
+WHERE ep.evaluacion_id = 1
+ORDER BY ep.orden;
