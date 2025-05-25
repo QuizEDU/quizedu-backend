@@ -210,6 +210,8 @@ CREATE TABLE evaluacion_curso (
     CONSTRAINT fk_eval_curso_curso FOREIGN KEY (curso_id) REFERENCES curso(id) ON DELETE CASCADE
 );
 
+
+
 CREATE TABLE evaluacion_estudiante (
     evaluacion_id NUMBER NOT NULL,
     estudiante_id NUMBER NOT NULL,

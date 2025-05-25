@@ -1,12 +1,8 @@
 INSERT INTO tipo_seleccion (nombre) VALUES ('manual');
-INSERT INTO tipo_seleccion (nombre) VALUES ('publicada');
-INSERT INTO tipo_seleccion (nombre) VALUES ('borrador');
-
-
--- Tabla: tipo_seleccion
-INSERT INTO tipo_seleccion (nombre) VALUES ('manual');
 INSERT INTO tipo_seleccion (nombre) VALUES ('aleatorio');
 
+INSERT INTO estado_evaluacion (nombre) VALUES ('publicada');
+INSERT INTO estado_evaluacion (nombre) VALUES ('borrador');
 -- Tabla: estado_evaluacion_estudiante
 INSERT INTO estado_evaluacion_estudiante (nombre) VALUES ('pendiente');
 INSERT INTO estado_evaluacion_estudiante (nombre) VALUES ('en_progreso');
@@ -21,8 +17,8 @@ BEGIN
     p_nombre_examen     => 'Parcial Unidad 1',
     p_descripcion       => 'Parcial de práctica sobre lógica proposicional',
     p_tiempo_max        => 40,
-    p_preguntas_pesos   => '3:10,22:10,27:10,41:10,42:10,43:10,44:10,45:10,26:10,21:10',
-    p_curso_id          => 5, -- Reemplaza con el ID real del curso
+    p_preguntas_pesos   => '1:10,21:15,41:20,64:40,65:15',
+    p_curso_id          => 8, -- Reemplaza con el ID real del curso
     p_fecha_apertura    => SYSTIMESTAMP,
     p_fecha_cierre      => SYSTIMESTAMP + INTERVAL '5' DAY,
     p_intentos          => 1,
