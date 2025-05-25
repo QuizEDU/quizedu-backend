@@ -45,4 +45,27 @@ public class EvaluacionController {
     public ResponseEntity<List<PreguntaDisponibleDTO>> obtenerPreguntasDocente(@PathVariable Long id) {
         return ResponseEntity.ok(evaluacionService.obtenerPreguntasDisponibles(id));
     }
+
+    @GetMapping("/disponibles/{estudianteId}")
+    public ResponseEntity<List<EvaluacionDisponibleDTO>> getDisponibles(@PathVariable Long estudianteId) {
+        List<EvaluacionDisponibleDTO> evaluaciones = evaluacionService.listarEvaluacionesDisponibles(estudianteId);
+        return ResponseEntity.ok(evaluaciones);
+    }
+
+    @PostMapping("/iniciar")
+    public ResponseEntity<RespuestaDTO> iniciarEvaluacion(@RequestBody InicioEvaluacionDTO dto) {
+        return ResponseEntity.ok(evaluacionService.registrarInicioEvaluacion(dto));
+    }
+
+    @GetMapping("/{evaluacionId}/preguntas")
+    public ResponseEntity<List<PreguntaEvaluacionDTO>> obtenerPreguntas(@PathVariable Long evaluacionId) {
+        return ResponseEntity.ok(evaluacionService.obtenerPreguntasPorEvaluacion(evaluacionId));
+    }
+
+    @GetMapping("/{evaluacionId}/preguntas/detalles")
+    public ResponseEntity<List<PresentarPreguntaDTO>> getPreguntasPresentacion(
+            @PathVariable Long evaluacionId) {
+        return ResponseEntity.ok(evaluacionService.obtenerPreguntasParaPresentar(evaluacionId));
+    }
+
 }

@@ -9,8 +9,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class EvaluacionService {
@@ -150,5 +149,201 @@ public class EvaluacionService {
         );
     }
 
+    public List<EvaluacionDisponibleDTO> listarEvaluacionesDisponibles(Long estudianteId) {
+        String sql = """
+        SELECT 
+            evaluacion_id,
+            nombre_evaluacion,
+            descripcion,
+            tiempo_maximo,
+            fecha_apertura,
+            fecha_cierre,
+            intentos_permitidos,
+            intentos_realizados,
+            curso_id,
+            nombre_curso
+        FROM vista_evaluaciones_disponibles
+        WHERE estudiante_id = ?
+        ORDER BY fecha_apertura DESC
+    """;
+
+        return jdbc.query(sql, new Object[]{estudianteId}, (rs, rowNum) ->
+                new EvaluacionDisponibleDTO(
+                        rs.getLong("evaluacion_id"),
+                        rs.getString("nombre_evaluacion"),
+                        rs.getString("descripcion"),
+                        rs.getInt("tiempo_maximo"),
+                        rs.getTimestamp("fecha_apertura").toLocalDateTime(),
+                        rs.getTimestamp("fecha_cierre").toLocalDateTime(),
+                        rs.getInt("intentos_permitidos"),
+                        rs.getInt("intentos_realizados"),
+                        rs.getLong("curso_id"),
+                        rs.getString("nombre_curso")
+                )
+        );
+    }
+
+    public RespuestaDTO registrarInicioEvaluacion(InicioEvaluacionDTO dto) {
+        String call = """
+        BEGIN
+            prc_registrar_inicio_evaluacion(?, ?, ?, ?);
+        END;
+    """;
+
+        try {
+            jdbc.execute((Connection con) -> {
+                CallableStatement cs = con.prepareCall(call);
+                cs.setLong(1, dto.evaluacionId());
+                cs.setLong(2, dto.estudianteId());
+                cs.setLong(3, dto.cursoId());
+                cs.setString(4, dto.ip());
+                cs.execute();
+                return null;
+            });
+            return new RespuestaDTO(true, "Inicio registrado");
+        } catch (Exception e) {
+            throw new RuntimeException("Error al registrar inicio: " + e.getMessage(), e);
+        }
+    }
+
+    public List<PreguntaEvaluacionDTO> obtenerPreguntasPorEvaluacion(Long evaluacionId) {
+        String sql = """
+        SELECT p.id, DBMS_LOB.SUBSTR(p.enunciado, 4000) AS enunciado, ep.porcentaje, ep.orden
+        FROM evaluacion_pregunta ep
+        JOIN banco_preguntas p ON p.id = ep.pregunta_id
+        WHERE ep.evaluacion_id = ?
+        ORDER BY ep.orden
+    """;
+
+        return jdbc.query(sql, new Object[]{evaluacionId}, (rs, rowNum) ->
+                new PreguntaEvaluacionDTO(
+                        rs.getLong("id"),
+                        rs.getString("enunciado"),
+                        rs.getDouble("porcentaje"),
+                        rs.getInt("orden")
+                )
+        );
+    }
+
+    public List<PresentarPreguntaDTO> obtenerPreguntasParaPresentar(Long evaluacionId) {
+        String sql = """
+        SELECT p.id, DBMS_LOB.SUBSTR(p.enunciado, 4000) AS enunciado,
+               tp.nombre AS tipo, p.dificultad,
+               ep.porcentaje, ep.orden
+        FROM evaluacion_pregunta ep
+        JOIN banco_preguntas p ON p.id = ep.pregunta_id
+        JOIN tipo_pregunta tp ON tp.id = p.tipo_pregunta_id
+        WHERE ep.evaluacion_id = ?
+        ORDER BY ep.orden
+    """;
+
+        return jdbc.query(sql, new Object[]{evaluacionId}, (rs, rowNum) -> {
+            Long preguntaId = rs.getLong("id");
+            String tipo = rs.getString("tipo");
+
+            List<PresentarOpcionDTO> opciones = List.of();
+            List<PresentarOpcionEmparejamientoDTO> izquierda = List.of();
+            List<PresentarOpcionEmparejamientoDTO> derecha = List.of();
+
+            switch (tipo) {
+                case "seleccion_unica":
+                case "seleccion_multiple":
+                    opciones = mezclarOpciones(obtenerOpciones(preguntaId));
+                    break;
+                case "falso_verdadero":
+                    opciones = List.of(
+                            new PresentarOpcionDTO(0L, "Verdadero"),
+                            new PresentarOpcionDTO(1L, "Falso")
+                    );
+                    break;
+                case "ordenar":
+                    opciones = mezclarOpciones(obtenerOpciones(preguntaId));
+                    break;
+                case "emparejar":
+                    var lados = obtenerOpcionesEmparejamiento(preguntaId);
+                    izquierda = lados.get("izquierda");
+                    derecha = lados.get("derecha");
+                    break;
+            }
+
+            return new PresentarPreguntaDTO(
+                    preguntaId,
+                    rs.getString("enunciado"),
+                    tipo,
+                    rs.getString("dificultad"),
+                    rs.getDouble("porcentaje"),
+                    rs.getInt("orden"),
+                    opciones,
+                    izquierda,
+                    derecha
+            );
+        });
+    }
+
+
+    private List<PresentarOpcionDTO> obtenerOpciones(Long preguntaId) {
+        String sql = """
+        SELECT id, DBMS_LOB.SUBSTR(texto, 4000) AS texto
+        FROM opcion_respuesta
+        WHERE pregunta_id = ?
+    """;
+
+        List<PresentarOpcionDTO> opciones = jdbc.query(sql, new Object[]{preguntaId}, (rs, rowNum) ->
+                new PresentarOpcionDTO(rs.getLong("id"), rs.getString("texto"))
+        );
+
+        Collections.shuffle(opciones); // ✅ desordenar si es "ordenar"
+        return opciones;
+    }
+
+    private Map<String, List<PresentarOpcionEmparejamientoDTO>> obtenerOpcionesEmparejamiento(Long preguntaId) {
+        String sql = """
+        SELECT id, texto, es_correcta
+        FROM opcion_respuesta
+        WHERE pregunta_id = ?
+    """;
+
+        List<Map<String, Object>> datos = jdbc.queryForList(sql, preguntaId);
+
+        Map<String, List<PresentarOpcionEmparejamientoDTO>> agrupados = new HashMap<>();
+        for (Map<String, Object> fila : datos) {
+            String clave = (String) fila.get("es_correcta");
+            Long id = ((Number) fila.get("id")).longValue();
+            String texto = (String) fila.get("texto");
+
+            agrupados.computeIfAbsent(clave, k -> new ArrayList<>())
+                    .add(new PresentarOpcionEmparejamientoDTO(id, texto));
+        }
+
+        List<PresentarOpcionEmparejamientoDTO> izquierda = new ArrayList<>();
+        List<PresentarOpcionEmparejamientoDTO> derecha = new ArrayList<>();
+
+        for (List<PresentarOpcionEmparejamientoDTO> par : agrupados.values()) {
+            if (par.size() == 2) {
+                izquierda.add(par.get(0));
+                derecha.add(par.get(1));
+            }
+        }
+
+        Collections.shuffle(izquierda);
+        Collections.shuffle(derecha);
+
+        Map<String, List<PresentarOpcionEmparejamientoDTO>> resultado = new HashMap<>();
+        resultado.put("izquierda", izquierda);
+        resultado.put("derecha", derecha);
+        return resultado;
+    }
+
+    private <T> List<T> mezclarOpciones(List<T> lista) {
+        List<T> copia = new ArrayList<>(lista);
+        Collections.shuffle(copia);
+        return copia;
+    }
+
+    private <T> List<T> mezclarPares(List<T> lista) {
+        List<T> copia = new ArrayList<>(lista);
+        Collections.shuffle(copia);
+        return copia;
+    }
 
 }

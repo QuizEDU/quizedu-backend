@@ -59,3 +59,29 @@ ORDER BY t.id;
 
 
 SELECT * FROM curso;
+
+
+        SELECT p.id, p.enunciado, p.dificultad, t.nombre AS tema, 
+               CASE WHEN p.es_publica = 'S' THEN 1 ELSE 0 END AS publica
+        FROM banco_preguntas p
+        JOIN tema t ON p.tema_id = t.id
+        WHERE p.es_publica = 'S' OR p.usuario_id = 17
+        ORDER BY p.enunciado;
+
+
+SELECT 
+  p.id,
+  DBMS_LOB.SUBSTR(p.enunciado, 4000) AS enunciado,
+  p.dificultad,
+  t.nombre AS tema,
+  CASE 
+    WHEN p.es_publica = 'S' THEN 'PÚBLICA'
+    ELSE 'PRIVADA'
+  END AS visibilidad,
+  u.nombre AS autor
+FROM banco_preguntas p
+JOIN tema t ON p.tema_id = t.id
+JOIN usuario u ON p.usuario_id = u.id
+WHERE p.es_publica = 'S' OR p.usuario_id = 17
+ORDER BY visibilidad DESC, DBMS_LOB.SUBSTR(p.enunciado, 4000);
+

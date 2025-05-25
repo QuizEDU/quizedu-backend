@@ -244,3 +244,5 @@ CREATE TABLE respuesta_estudiante (
     CONSTRAINT fk_resp_est_curso FOREIGN KEY (curso_id) REFERENCES curso(id),
     CONSTRAINT fk_resp_opcion FOREIGN KEY (respuesta_opcion_id) REFERENCES opcion_respuesta(id)
 );
+
+ALTER TABLE evaluacion_estudiante ADD ip_origen VARCHAR2(45);
