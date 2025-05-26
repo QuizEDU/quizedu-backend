@@ -9,6 +9,8 @@ public record ExamenPresentadoDTO(
         String fechaFin,
         Double tiempoMinutos,
         String estadoEvaluacion,
-        String ipOrigen // ✅ NUEVO CAMPO
+        String ipOrigen,
+        Long cursoId,
+        String nombreEstudiante
 ) {}
 

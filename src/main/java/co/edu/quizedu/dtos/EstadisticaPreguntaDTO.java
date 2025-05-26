@@ -7,5 +7,6 @@ public record EstadisticaPreguntaDTO(
         Integer totalRespuestas,
         Integer correctas,
         Integer incorrectas,
-        Double porcentajeCorrectas
+        Double porcentajeCorrectas,
+        Long curso_id
 ) {}

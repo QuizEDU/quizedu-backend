@@ -175,3 +175,25 @@ GROUP BY u.id, u.nombre;
 
  SELECT * FROM vista_preguntas_con_bajo_desempeno WHERE docente_id = 41;
  SELECT * FROM vista_examenes_presentados WHERE docente_id = 41 ORDER BY fecha_inicio DESC;
+
+
+
+
+
+
+
+
+ SELECT * FROM vista_desempeno_estudiante;
+
+ SELECT * FROM vista_estadistica_global_docente;
+
+ SELECT * FROM vista_estadisticas_pregunta;
+
+ SELECT * FROM vista_examenes_presentados;
+
+ SELECT * FROM vista_mis_examenes;
+
+ SELECT * FROM vista_rendimiento_tema_estudiante;
+
+
+

@@ -36,7 +36,7 @@ public class EstadisticasService {
                 rs.getString("fecha_inicio"),
                 rs.getString("fecha_fin"),
                 rs.getDouble("tiempo_minutos"),
-                rs.getString("estado_evaluacion"),null
+                rs.getString("estado_evaluacion"),null,null,null
         ));
     }
     public ResumenEstudianteDTO obtenerResumenEstudiante(Long estudianteId) {
@@ -80,7 +80,7 @@ public class EstadisticasService {
 
     public List<EstadisticaPreguntaDTO> obtenerEstadisticasPreguntasDocente(Long docenteId) {
         return jdbcTemplate.query("""
-        SELECT * FROM vista_estadisticas_pregunta WHERE docente_id = ?
+        SELECT * FROM vista_estadisticas_pregunta_por_curso WHERE docente_id = ?
     """, new Object[]{docenteId}, (rs, rowNum) -> new EstadisticaPreguntaDTO(
                 rs.getLong("pregunta_id"),
                 rs.getString("enunciado"),
@@ -88,7 +88,8 @@ public class EstadisticasService {
                 rs.getInt("total_respuestas"),
                 rs.getInt("correctas"),
                 rs.getInt("incorrectas"),
-                rs.getDouble("porcentaje_correctas")
+                rs.getDouble("porcentaje_correctas"),
+                rs.getLong("curso_id")
         ));
     }
 
@@ -102,7 +103,7 @@ public class EstadisticasService {
                 rs.getInt("total_respuestas"),
                 rs.getInt("correctas"),
                 rs.getInt("incorrectas"),
-                rs.getDouble("porcentaje_aciertos")
+                rs.getDouble("porcentaje_aciertos"),null
         ));
     }
 
@@ -135,7 +136,9 @@ public class EstadisticasService {
                 rs.getString("fecha_fin"),
                 rs.getDouble("tiempo_minutos"),
                 rs.getString("estado_evaluacion"),
-                rs.getString("ip_origen") // ✅ INCLUIDO
+                rs.getString("ip_origen"),
+                rs.getLong("curso_id"),
+                rs.getString("nombre_estudiante")
         ));
     }
 
