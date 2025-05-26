@@ -11,7 +11,8 @@ public record EvaluacionDisponibleDTO(
         LocalDateTime fechaCierre,
         Integer intentosPermitidos,
         Integer intentosRealizados,
-        Long idCurso,
+        Long cursoId,
         String nombreCurso,
-        Boolean inicioRegistrado // ✅ nuevo campo
+        Boolean inicioRegistrado,
+        Boolean puedePresentar
 ) {}

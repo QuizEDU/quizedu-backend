@@ -152,22 +152,24 @@ public class EvaluacionService {
 
     public List<EvaluacionDisponibleDTO> listarEvaluacionesDisponibles(Long estudianteId) {
         String sql = """
-            SELECT 
-                evaluacion_id,
-                nombre_evaluacion,
-                descripcion,
-                tiempo_maximo,
-                fecha_apertura,
-                fecha_cierre,
-                intentos_permitidos,
-                intentos_realizados,
-                curso_id,
-                nombre_curso,
-                inicio_registrado
-            FROM vista_evaluaciones_disponibles
-            WHERE estudiante_id = ?
-            ORDER BY fecha_apertura DESC
-            """;
+        SELECT 
+            evaluacion_id,
+            nombre_evaluacion,
+            descripcion,
+            tiempo_maximo,
+            fecha_apertura,
+            fecha_cierre,
+            intentos_permitidos,
+            intentos_realizados,
+            curso_id,
+            nombre_curso,
+            inicio_registrado,
+            puede_presentar
+        FROM vista_evaluaciones_disponibles
+        WHERE estudiante_id = ?
+        AND puede_presentar = 'SI'
+        ORDER BY fecha_apertura DESC
+        """;
 
         return jdbc.query(sql, new Object[]{estudianteId}, (rs, rowNum) ->
                 new EvaluacionDisponibleDTO(
@@ -181,10 +183,12 @@ public class EvaluacionService {
                         rs.getInt("intentos_realizados"),
                         rs.getLong("curso_id"),
                         rs.getString("nombre_curso"),
-                        rs.getInt("inicio_registrado") == 1 // ✅ convertir a booleano
+                        rs.getInt("inicio_registrado") == 1,
+                        rs.getString("puede_presentar").equals("SI")
                 )
         );
     }
+
 
     public RespuestaDTO registrarInicioEvaluacion(InicioEvaluacionDTO dto) {
         String call = """
@@ -306,7 +310,7 @@ public class EvaluacionService {
                     cs.setLong(4, r.preguntaId());
                     cs.setString(5, r.tipo());
                     cs.setString(6, r.respuestaTexto());
-                    cs.setObject(7, r.respuestaOpcionId(), Types.NUMERIC);
+                    cs.setObject(7, (r.respuestaOpcionId() != null && r.respuestaOpcionId() != 0) ? r.respuestaOpcionId() : null, Types.NUMERIC);
                     cs.setString(8, r.respuestaCompuesta());
                     cs.setString(9, r.emparejamientos());
                     cs.execute();

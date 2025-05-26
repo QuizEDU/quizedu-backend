@@ -9,8 +9,11 @@ services:
     environment:
       ORACLE_PWD: A123456
       ORACLE_CHARACTERSET: AL32UTF8
+      TZ: America/Bogota  # 🕒 Establece la zona horaria correctamente
     volumes:
       - ./oracle-data-xe:/opt/oracle/oradata
+      - /etc/timezone:/etc/timezone:ro   # 🕒 Asegura sincronización del sistema
+      - /etc/localtime:/etc/localtime:ro # 🕒 Idem
 
 volumes:
   oracle-data-xe:

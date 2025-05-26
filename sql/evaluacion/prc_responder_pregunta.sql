@@ -11,10 +11,12 @@ CREATE OR REPLACE PROCEDURE prc_responder_pregunta (
 )
 IS
   v_correcta CHAR(1) := 'N';
+  v_opcion_id NUMBER;
 BEGIN
   CASE p_tipo
     WHEN 'falso_verdadero' THEN
-      IF p_respuesta_opcion_id = fn_vf_correcta(p_pregunta_id) THEN
+      v_opcion_id := NVL(p_respuesta_opcion_id, 0); -- solo para VF se convierte null en 0
+      IF v_opcion_id = fn_vf_correcta(p_pregunta_id) THEN
         v_correcta := 'S';
       END IF;
 
@@ -42,7 +44,6 @@ BEGIN
       IF fn_validar_emparejamiento_usuario(p_pregunta_id, p_emparejamientos) = 'OK' THEN
         v_correcta := 'S';
       END IF;
-
   END CASE;
 
   -- Registrar la respuesta
@@ -52,7 +53,11 @@ BEGIN
     p_pregunta_id,
     p_curso_id,
     p_respuesta_texto,
-    p_respuesta_opcion_id,
+    -- Usa la opción corregida solo en VF, el resto pasa la original
+    CASE 
+      WHEN p_tipo = 'falso_verdadero' THEN NVL(p_respuesta_opcion_id, 0)
+      ELSE p_respuesta_opcion_id
+    END,
     p_respuesta_compuesta,
     v_correcta
   );

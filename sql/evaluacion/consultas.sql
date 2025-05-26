@@ -127,3 +127,14 @@ SELECT fn_vf_correcta(1) FROM dual;
 SELECT fn_validar_orden_usuario(66, '61,62,63,64,65') FROM dual;
 -- Resultado: 'OK'
 
+
+
+
+/* Evaluar 42 del studenID 42*/
+
+/* 3. falso_verdadero*/
+SELECT fn_vf_correcta(76) FROM dual;
+-- Resultado: 'OK'
+
+
+SELECT * FROM EVALUACION_ESTUDIANTE;
