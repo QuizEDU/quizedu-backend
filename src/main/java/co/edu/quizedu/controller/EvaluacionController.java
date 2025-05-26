@@ -76,6 +76,6 @@ public class EvaluacionController {
     @PostMapping("/evaluaciones/finalizar")
     public ResponseEntity<ResultadoFinalDTO> finalizarEvaluacion(
             @RequestBody FinalizarEvaluacionDTO dto) {
-        return ResponseEntity.ok(evaluacionService.finalizarEvaluacion(dto));
+        return ResponseEntity.ok(evaluacionService.registrarYFinalizarEvaluacion(dto));
     }
 }

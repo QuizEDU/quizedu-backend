@@ -106,3 +106,24 @@ WHERE CURRENT_TIMESTAMP BETWEEN ec.fecha_apertura AND ec.fecha_cierre;
         WHERE estudiante_id = 1
         ORDER BY fecha_apertura DESC;
 
+
+/* Evaluar examen 21 */
+
+
+/*1. emparejar*/
+SELECT fn_validar_emparejamiento_usuario(63, '51-52;47-48;49-50') FROM dual;
+-- Resultado: 'OK'
+
+/*2. ordenar*/
+SELECT fn_validar_orden_usuario(65, '57,58,59,60') FROM dual;
+-- Resultado: 'OK'
+
+
+/* 3. falso_verdadero*/
+SELECT fn_vf_correcta(1) FROM dual;
+-- Resultado: 'OK'
+
+/*4. ordenar*/
+SELECT fn_validar_orden_usuario(66, '61,62,63,64,65') FROM dual;
+-- Resultado: 'OK'
+

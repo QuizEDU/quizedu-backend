@@ -14,7 +14,7 @@ IS
 BEGIN
   CASE p_tipo
     WHEN 'falso_verdadero' THEN
-      IF p_respuesta_opcion_id = fn_opcion_correcta_id(p_pregunta_id) THEN
+      IF p_respuesta_opcion_id = fn_vf_correcta(p_pregunta_id) THEN
         v_correcta := 'S';
       END IF;
 

@@ -1,30 +1,28 @@
 CREATE OR REPLACE VIEW vista_evaluaciones_disponibles AS
-SELECT
-  ce.estudiante_id,
-  ec.evaluacion_id,
-  e.nombre AS nombre_evaluacion,
-  e.descripcion,
-  e.tiempo_maximo,
-  ec.fecha_apertura,
-  ec.fecha_cierre,
-  ec.intentos_permitidos,
-  NVL(ee.intentos_realizados, 0) AS intentos_realizados,
-  ce.CURSO_ID AS curso_id,
-  c.nombre AS nombre_curso
-FROM curso_estudiante ce
-JOIN evaluacion_curso ec ON ce.curso_id = ec.curso_id
-JOIN evaluacion e ON ec.evaluacion_id = e.id
-JOIN curso c ON c.id = ce.curso_id
+SELECT 
+    e.id AS evaluacion_id,
+    e.nombre AS nombre_evaluacion,
+    e.descripcion,
+    e.tiempo_maximo,
+    ec.fecha_apertura,
+    ec.fecha_cierre,
+    ec.intentos_permitidos,
+    COALESCE(ee.intentos_realizados, 0) AS intentos_realizados,
+    c.id AS curso_id,
+    c.nombre AS nombre_curso,
+
+    CASE 
+        WHEN ee.fecha_inicio IS NOT NULL THEN 1
+        ELSE 0
+    END AS inicio_registrado,
+    ee.estudiante_id
+
+FROM evaluacion e
+JOIN evaluacion_curso ec ON ec.evaluacion_id = e.id
+JOIN curso c ON c.id = ec.curso_id
 LEFT JOIN (
-  SELECT evaluacion_id, estudiante_id, COUNT(*) AS intentos_realizados
-  FROM evaluacion_estudiante
-  GROUP BY evaluacion_id, estudiante_id
-) ee ON ee.evaluacion_id = e.id AND ee.estudiante_id = ce.estudiante_id
+    SELECT evaluacion_id, curso_id, estudiante_id, MAX(fecha_inicio) AS fecha_inicio, COUNT(*) AS intentos_realizados
+    FROM evaluacion_estudiante
+    GROUP BY evaluacion_id, curso_id, estudiante_id
+) ee ON ee.evaluacion_id = e.id AND ee.curso_id = c.id AND ee.estudiante_id = 42
 WHERE CURRENT_TIMESTAMP BETWEEN ec.fecha_apertura AND ec.fecha_cierre;
-
-
-SELECT p.id, DBMS_LOB.SUBSTR(p.enunciado, 4000) AS enunciado, ep.porcentaje, ep.orden
-FROM evaluacion_pregunta ep
-JOIN banco_preguntas p ON p.id = ep.pregunta_id
-WHERE ep.evaluacion_id = 1
-ORDER BY ep.orden;

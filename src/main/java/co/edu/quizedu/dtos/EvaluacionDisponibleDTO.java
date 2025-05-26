@@ -12,5 +12,6 @@ public record EvaluacionDisponibleDTO(
         Integer intentosPermitidos,
         Integer intentosRealizados,
         Long idCurso,
-        String nombreCurso
+        String nombreCurso,
+        Boolean inicioRegistrado // ✅ nuevo campo
 ) {}

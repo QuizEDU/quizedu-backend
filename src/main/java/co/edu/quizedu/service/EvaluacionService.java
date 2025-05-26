@@ -4,6 +4,7 @@ import co.edu.quizedu.dtos.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -151,21 +152,22 @@ public class EvaluacionService {
 
     public List<EvaluacionDisponibleDTO> listarEvaluacionesDisponibles(Long estudianteId) {
         String sql = """
-        SELECT 
-            evaluacion_id,
-            nombre_evaluacion,
-            descripcion,
-            tiempo_maximo,
-            fecha_apertura,
-            fecha_cierre,
-            intentos_permitidos,
-            intentos_realizados,
-            curso_id,
-            nombre_curso
-        FROM vista_evaluaciones_disponibles
-        WHERE estudiante_id = ?
-        ORDER BY fecha_apertura DESC
-    """;
+            SELECT 
+                evaluacion_id,
+                nombre_evaluacion,
+                descripcion,
+                tiempo_maximo,
+                fecha_apertura,
+                fecha_cierre,
+                intentos_permitidos,
+                intentos_realizados,
+                curso_id,
+                nombre_curso,
+                inicio_registrado
+            FROM vista_evaluaciones_disponibles
+            WHERE estudiante_id = ?
+            ORDER BY fecha_apertura DESC
+            """;
 
         return jdbc.query(sql, new Object[]{estudianteId}, (rs, rowNum) ->
                 new EvaluacionDisponibleDTO(
@@ -178,7 +180,8 @@ public class EvaluacionService {
                         rs.getInt("intentos_permitidos"),
                         rs.getInt("intentos_realizados"),
                         rs.getLong("curso_id"),
-                        rs.getString("nombre_curso")
+                        rs.getString("nombre_curso"),
+                        rs.getInt("inicio_registrado") == 1 // ✅ convertir a booleano
                 )
         );
     }
@@ -187,6 +190,7 @@ public class EvaluacionService {
         String call = """
         BEGIN
             prc_registrar_inicio_evaluacion(?, ?, ?, ?);
+        COMMIT;
         END;
     """;
 
@@ -280,6 +284,52 @@ public class EvaluacionService {
         });
     }
 
+    @Transactional
+    public ResultadoFinalDTO registrarYFinalizarEvaluacion(FinalizarEvaluacionDTO dto) {
+        String sqlRespuesta = """
+            BEGIN
+              prc_responder_pregunta(
+                ?, ?, ?, ?, ?, ?, ?, ?, ?
+              );
+            END;
+            """;
+
+        String sqlFinalizar = "{ call prc_calificar_evaluacion_estudiante(?, ?, ?) }";
+
+        try {
+            for (PresentarRespuestaDTO r : dto.respuestas()) {
+                jdbc.execute((Connection con) -> {
+                    CallableStatement cs = con.prepareCall(sqlRespuesta);
+                    cs.setLong(1, r.evaluacionId());
+                    cs.setLong(2, r.estudianteId());
+                    cs.setLong(3, r.cursoId());
+                    cs.setLong(4, r.preguntaId());
+                    cs.setString(5, r.tipo());
+                    cs.setString(6, r.respuestaTexto());
+                    cs.setObject(7, r.respuestaOpcionId(), Types.NUMERIC);
+                    cs.setString(8, r.respuestaCompuesta());
+                    cs.setString(9, r.emparejamientos());
+                    cs.execute();
+                    return null;
+                });
+            }
+
+            Double nota = jdbc.execute((Connection con) -> {
+                CallableStatement cs = con.prepareCall(sqlFinalizar);
+                cs.setLong(1, dto.evaluacionId());
+                cs.setLong(2, dto.estudianteId());
+                cs.registerOutParameter(3, Types.NUMERIC);
+                cs.execute();
+                return cs.getDouble(3);
+            });
+
+            return new ResultadoFinalDTO(true, "Evaluación finalizada correctamente", nota);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error en evaluación: " + e.getMessage(), e);
+        }
+    }
+
     public RespuestaDTO registrarRespuesta(PresentarRespuestaDTO dto) {
         String sql = """
         BEGIN
@@ -315,27 +365,6 @@ public class EvaluacionService {
             return new RespuestaDTO(true, "Respuesta registrada correctamente");
         } catch (Exception e) {
             throw new RuntimeException("Error al registrar la respuesta: " + e.getMessage(), e);
-        }
-    }
-
-    public ResultadoFinalDTO finalizarEvaluacion(FinalizarEvaluacionDTO dto) {
-        String call = "{ call prc_calificar_evaluacion_estudiante(?, ?, ?) }";
-
-        try {
-            Double nota = jdbc.execute((Connection con) -> {
-                CallableStatement cs = con.prepareCall(call);
-                cs.setLong(1, dto.evaluacionId());
-                cs.setLong(2, dto.estudianteId());
-                cs.registerOutParameter(3, Types.NUMERIC);
-
-                cs.execute();
-
-                return cs.getDouble(3);
-            });
-
-            return new ResultadoFinalDTO(true, "Examen finalizado", nota);
-        } catch (Exception e) {
-            throw new RuntimeException("Error al finalizar la evaluación: " + e.getMessage(), e);
         }
     }
 
