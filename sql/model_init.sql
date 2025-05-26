@@ -246,3 +246,4 @@ CREATE TABLE respuesta_estudiante (
 );
 
 ALTER TABLE evaluacion_estudiante ADD ip_origen VARCHAR2(45);
+

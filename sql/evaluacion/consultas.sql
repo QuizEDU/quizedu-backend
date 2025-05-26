@@ -137,4 +137,30 @@ SELECT fn_vf_correcta(76) FROM dual;
 -- Resultado: 'OK'
 
 
-SELECT * FROM EVALUACION_ESTUDIANTE;
+SELECT evaluacion_id, estudiante_id, pregunta_id, es_correcta
+FROM respuesta_estudiante
+WHERE evaluacion_id = 42 AND estudiante_id = 42 AND pregunta_id = 76;
+
+
+        SELECT 
+                evaluacion_id,
+                nombre_evaluacion,
+                descripcion,
+                tiempo_maximo,
+                fecha_apertura,
+                fecha_cierre,
+                intentos_permitidos,
+                intentos_realizados,
+                curso_id,
+                nombre_curso,
+                inicio_registrado
+            FROM vista_evaluaciones_disponibles
+            WHERE estudiante_id = 42
+            ORDER BY fecha_apertura DESC;
+
+
+
+
+
+
+            

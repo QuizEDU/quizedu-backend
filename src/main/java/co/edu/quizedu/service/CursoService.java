@@ -3,6 +3,7 @@ package co.edu.quizedu.service;
 import co.edu.quizedu.dtos.CursoRequest;
 import co.edu.quizedu.dtos.CursoResponse;
 import co.edu.quizedu.dtos.InscripcionRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.SqlOutParameter;
@@ -19,7 +20,7 @@ import java.util.Map;
 
 @Service
 public class CursoService {
-
+    @Autowired
     private final JdbcTemplate jdbc;
 
     public CursoService(JdbcTemplate jdbc) {

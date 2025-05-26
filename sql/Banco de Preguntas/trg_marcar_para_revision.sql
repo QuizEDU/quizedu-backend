@@ -1,9 +1,11 @@
 CREATE OR REPLACE TRIGGER trg_marcar_para_revision
-AFTER UPDATE ON banco_preguntas
+BEFORE UPDATE ON banco_preguntas
 FOR EACH ROW
 BEGIN
   IF :NEW.tasa_respuesta_correcta < 50 THEN
     :NEW.requiere_revision := 'S';
+  ELSE
+    :NEW.requiere_revision := 'N';
   END IF;
 END;
 /
