@@ -22,7 +22,8 @@ public class EstadisticasService {
               TO_CHAR(fecha_inicio, 'YYYY-MM-DD HH24:MI') AS fecha_inicio,
               TO_CHAR(fecha_fin, 'YYYY-MM-DD HH24:MI') AS fecha_fin,
               tiempo_minutos,
-              estado_evaluacion
+              estado_evaluacion,
+              curso_id
             FROM vista_mis_examenes
             WHERE estudiante_id = ?
             ORDER BY fecha_inicio DESC
@@ -36,7 +37,7 @@ public class EstadisticasService {
                 rs.getString("fecha_inicio"),
                 rs.getString("fecha_fin"),
                 rs.getDouble("tiempo_minutos"),
-                rs.getString("estado_evaluacion"),null,null,null
+                rs.getString("estado_evaluacion"),null,rs.getLong("curso_id"),null
         ));
     }
     public ResumenEstudianteDTO obtenerResumenEstudiante(Long estudianteId) {

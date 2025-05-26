@@ -3,6 +3,7 @@ SELECT
   ee.estudiante_id,
   e.id AS evaluacion_id,
   e.nombre AS nombre_evaluacion,
+  c.id AS curso_id,                          -- 👈 agregado
   c.nombre AS nombre_curso,
   ROUND(NVL(ee.calificacion, 0), 2) AS calificacion,
   ee.fecha_inicio,
